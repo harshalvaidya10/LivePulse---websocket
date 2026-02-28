@@ -9,7 +9,8 @@ import { attachWebSocketServer } from './ws/server.js';
 
 const PORT = Number(process.env.PORT) || 8000;
 const HOST = process.env.HOST || '0.0.0.0';
-const useHttps = Boolean(process.env.HTTPS);
+const httpsEnv = process.env.HTTPS?.trim().toLowerCase();
+const useHttps = httpsEnv === 'true' || httpsEnv === '1';
 
 const app = express();
 let server;
