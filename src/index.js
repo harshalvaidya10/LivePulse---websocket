@@ -7,6 +7,7 @@ import express from 'express';
 import { matchRouter } from './routes/matches.js';
 import { attachWebSocketServer } from './ws/server.js';
 import { securityMiddleware } from '../arcjet.js';
+import { commentaryRouter } from './routes/commentary.js';
 
 const PORT = Number(process.env.PORT) || 8000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -25,6 +26,8 @@ app.get('/', (_req, res) => {
 app.use(securityMiddleware());
 
 app.use('/matches', matchRouter);
+
+app.use('/matches/:id/commentary', commentaryRouter);
 
 if (useHttps) {
   const keyPath = process.env.HTTPS_KEY_PATH;
@@ -50,8 +53,9 @@ if (useHttps) {
   server = http.createServer(app);
 }
 
-const { broadcastMatchCreated } = attachWebSocketServer(server);
+const { broadcastMatchCreated, broadcastCommentary } = attachWebSocketServer(server);
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
+app.locals.broadcastCommentary = broadcastCommentary;
 
 server.listen(PORT, HOST, () => {
   const protocol = useHttps ? 'https' : 'http';
