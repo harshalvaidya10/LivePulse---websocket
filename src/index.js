@@ -1,12 +1,18 @@
 import 'dotenv/config';
 import { readFileSync } from 'node:fs';
+import http from 'node:http';
 import https from 'node:https';
 import path from 'node:path';
 import express from 'express';
 import { matchRouter } from './routes/matches.js';
+import { attachWebSocketServer } from './ws/server.js';
+
+const PORT = Number(process.env.PORT) || 8000;
+const HOST = process.env.HOST || '0.0.0.0';
+const useHttps = Boolean(process.env.HTTPS);
 
 const app = express();
-const PORT = Number(process.env.PORT) || 8000;
+let server;
 
 app.use(express.json());
 
@@ -16,10 +22,6 @@ app.get('/', (_req, res) => {
 
 app.use('/matches', matchRouter);
 
-const useHttps = Boolean(process.env.HTTPS);
-
-let server = app;
-
 if (useHttps) {
   const keyPath = process.env.HTTPS_KEY_PATH;
   const certPath = process.env.HTTPS_CERT_PATH;
@@ -27,7 +29,7 @@ if (useHttps) {
   if (!keyPath || !certPath) {
     console.error(
       'HTTPS is enabled, but HTTPS_KEY_PATH or HTTPS_CERT_PATH is missing. ' +
-        'Set both env vars to certificate file paths.',
+        'Set both environment variables.',
     );
     process.exit(1);
   }
@@ -40,9 +42,18 @@ if (useHttps) {
     console.error('Failed to read HTTPS certificate files:', error);
     process.exit(1);
   }
+} else {
+  server = http.createServer(app);
 }
 
-server.listen(PORT, () => {
+const { broadcastMatchCreated } = attachWebSocketServer(server);
+app.locals.broadcastMatchCreated = broadcastMatchCreated;
+
+server.listen(PORT, HOST, () => {
   const protocol = useHttps ? 'https' : 'http';
-  console.log(`Server started. URL: ${protocol}://localhost:${PORT}`);
+  const wsProtocol = useHttps ? 'wss' : 'ws';
+  const baseUrl = HOST === '0.0.0.0' ? `${protocol}://localhost:${PORT}` : `${protocol}://${HOST}:${PORT}`;
+
+  console.log(`Server is running on ${baseUrl}`);
+  console.log(`WebSocket server is running on ${baseUrl.replace(protocol, wsProtocol)}/ws`);
 });

@@ -4,7 +4,7 @@ import { db } from '../db/db.js';
 import { matches } from '../db/schema.js';
 import { getMatchStatus } from '../utils/match-status.js';
 import { createMatchSchema, listMatchesQuerySchema } from '../validation/matches.js';
-
+import { attachWebSocketServer } from '../ws/server.js';
 export const matchRouter = Router();
 
 const MAX_LIMIT = 100;
@@ -67,6 +67,10 @@ matchRouter.post('/', async (req, res) => {
         status,
       })
       .returning();
+
+    if(res.app.locals.broadcastMatchCreated){
+      res.app.locals.broadcastMatchCreated(event);
+    }
 
     return res.status(201).json({ data: event });
   } catch (e) {
