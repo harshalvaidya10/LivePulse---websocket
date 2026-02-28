@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { desc, eq } from 'drizzle-orm';
 import { db } from '../db/db.js';
-import { commentary } from '../db/schema.js';
+import { commentary, matches } from '../db/schema.js';
 import { createCommentarySchema, listCommentaryQuerySchema } from '../validation/commentary.js';
 import { matchIdParamSchema } from '../validation/matches.js';
 
@@ -43,7 +43,7 @@ commentaryRouter.post('/', async (req, res) => {
     const paramsResult = matchIdParamSchema.safeParse(req.params);
 
     if (!paramsResult.success) {
-        return res.status(400).json({ error: 'Invalid match Id.', details: paramsResult.error.issues });
+        return res.status(400).json({ error: 'Invalid match id.', details: paramsResult.error.issues });
     }
 
     const bodyResult = createCommentarySchema.safeParse(req.body);
@@ -56,6 +56,16 @@ commentaryRouter.post('/', async (req, res) => {
     }
 
     try {
+        const [match] = await db
+            .select({ id: matches.id })
+            .from(matches)
+            .where(eq(matches.id, paramsResult.data.id))
+            .limit(1);
+
+        if (!match) {
+            return res.status(404).json({ error: 'Match not found' });
+        }
+
         const { minutes, ...rest } = bodyResult.data;
 
         const [result] = await db.insert(commentary).values({
@@ -64,11 +74,15 @@ commentaryRouter.post('/', async (req, res) => {
             ...rest
         }).returning();
 
-        if(res.app.locals.broadcastCommentary){
-            res.app.locals.broadcastCommentary(result.matchId, result);
-        }
-
         res.status(201).json({ data: result });
+
+        if (res.app.locals.broadcastCommentary) {
+            try {
+                res.app.locals.broadcastCommentary(result.matchId, result);
+            } catch (broadcastError) {
+                console.error('Failed to broadcast commentary update:', broadcastError);
+            }
+        }
     } catch (error) {
         console.error('Failed to create commentary:', error);
         res.status(500).json({ error: 'Failed to create commentary.' });
