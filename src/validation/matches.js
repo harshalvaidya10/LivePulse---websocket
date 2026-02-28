@@ -7,12 +7,8 @@ export const MATCH_STATUS = {
 };
 
 const isValidIsoDateString = (value) => {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    return false;
-  }
-
-  const timestamp = Date.parse(value);
-  return !Number.isNaN(timestamp);
+  const result = z.iso.datetime({ offset: true }).safeParse(value);
+  return result.success;
 };
 
 const isoDateStringSchema = z.string().refine(isValidIsoDateString, {

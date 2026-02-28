@@ -1,6 +1,6 @@
 import { MATCH_STATUS } from '../validation/matches.js';
 
-//checks current match status - SCHEDULED, LIVE, ENDED
+//checks current match status - SCHEDULED, LIVE, FINISHED
 export function getMatchStatus(startTime, endTime, now = new Date()) {
     const start = new Date(startTime);
     const end = new Date(endTime);
@@ -21,6 +21,7 @@ export function getMatchStatus(startTime, endTime, now = new Date()) {
 }
 
 //updates the match status in DB, and checks whether in sync with DB's match status
+//Note: This function intentionally mutates match.status when a status change is detected.
 export async function syncMatchStatus(match, updateStatus) {
     const nextStatus = getMatchStatus(match.startTime, match.endTime);
     if (!nextStatus) {

@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --watch src/index.js",
-    "dev:https": "HTTPS=true node --watch src/index.js",
+    "dev:https": "cross-env HTTPS=true node --watch src/index.js",
     "start": "node src/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -25,6 +25,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "drizzle-kit": "^0.31.9"
   }
 }
