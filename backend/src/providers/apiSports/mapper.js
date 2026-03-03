@@ -29,6 +29,8 @@ export function mapFixtureToMatchRow(f) {
 
     const homeTeam = f?.teams?.home?.name ?? "Home";
     const awayTeam = f?.teams?.away?.name ?? "Away";
+    const homeTeamLogo = f?.teams?.home?.logo ?? null;
+    const awayTeamLogo = f?.teams?.away?.logo ?? null;
 
     const homeScore = Number.isFinite(f?.goals?.home) ? f.goals.home : 0;
     const awayScore = Number.isFinite(f?.goals?.away) ? f.goals.away : 0;
@@ -41,6 +43,8 @@ export function mapFixtureToMatchRow(f) {
         sport: "football", // MVP: api-football only
         homeTeam,
         awayTeam,
+        homeTeamLogo,
+        awayTeamLogo,
         league: f?.league?.name ?? null,
         country: f?.league?.country ?? null,
         startTime: startTime ?? new Date(),

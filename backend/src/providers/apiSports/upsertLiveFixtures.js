@@ -46,6 +46,8 @@ export async function upsertLiveFixtures(fixtures, { onMatchCreated, onScoreUpda
                 homeScore: row.homeScore,
                 awayScore: row.awayScore,
                 status: row.status,
+                homeTeamLogo: row.homeTeamLogo,
+                awayTeamLogo: row.awayTeamLogo,
                 // startTime should be stable; but safe to keep it aligned
                 startTime: row.startTime,
                 endTime: row.endTime,

@@ -23,6 +23,8 @@ export const matches = pgTable(
     sport: text('sport').notNull(),
     homeTeam: text('home_team').notNull(),
     awayTeam: text('away_team').notNull(),
+    homeTeamLogo: text('home_team_logo'),
+    awayTeamLogo: text('away_team_logo'),
     league: text('league'),
     country: text('country'),
     status: matchStatus('status').default('scheduled').notNull(),

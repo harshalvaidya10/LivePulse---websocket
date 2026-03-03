@@ -1,6 +1,6 @@
 {
-  "id": "9510686f-7b94-471d-a149-481dd15ea7cd",
-  "prevId": "134a484b-ab78-4e1b-a8cc-6b289aea179c",
+  "id": "eb11178f-87ae-493e-ab94-00fdf85a192d",
+  "prevId": "204002c6-9e3d-4ad4-9bbe-f246a2618a21",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -14,14 +14,26 @@
           "primaryKey": true,
           "notNull": true
         },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "provider_event_key": {
+          "name": "provider_event_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "match_id": {
           "name": "match_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "minute": {
-          "name": "minute",
+        "minutes": {
+          "name": "minutes",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -82,20 +94,42 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "commentary_provider_event_key_uq": {
+          "name": "commentary_provider_event_key_uq",
+          "columns": [
+            {
+              "expression": "provider",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "provider_event_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "commentary_match_id_matches_id_fk": {
           "name": "commentary_match_id_matches_id_fk",
           "tableFrom": "commentary",
+          "tableTo": "matches",
           "columnsFrom": [
             "match_id"
           ],
-          "tableTo": "matches",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -114,6 +148,18 @@
           "primaryKey": true,
           "notNull": true
         },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "provider_match_id": {
+          "name": "provider_match_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "sport": {
           "name": "sport",
           "type": "text",
@@ -131,6 +177,30 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "home_team_logo": {
+          "name": "home_team_logo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "away_team_logo": {
+          "name": "away_team_logo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "league": {
+          "name": "league",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "country": {
+          "name": "country",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "status": {
           "name": "status",
@@ -172,9 +242,37 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "last_synced_at": {
+          "name": "last_synced_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "matches_provider_provider_match_id_uq": {
+          "name": "matches_provider_provider_match_id_uq",
+          "columns": [
+            {
+              "expression": "provider",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "provider_match_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
@@ -195,10 +293,10 @@
     }
   },
   "schemas": {},
-  "views": {},
   "sequences": {},
   "roles": {},
   "policies": {},
+  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},
